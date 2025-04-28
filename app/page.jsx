@@ -33,7 +33,7 @@ export default function Page() {
                   preferensi Anda.
                 </p>
               </div>
-              <a href="/Rekomendasi " className="btn btn-primary mt-10">
+              <a href="/Rekomendasi " className="btn rounded-lg btn-primary mt-10">
                 Temukan Rekomendasi{" "}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

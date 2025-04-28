@@ -63,10 +63,10 @@ export default function Navbar(props) {
               <a href="/Rekomendasi">Rekomendasi</a>
             </li>
             <li>
-              <a>Pencarian</a>
+              <a href="/Pencarian">Pencarian</a>
             </li>
             <li>
-              <a>Contact Us</a>
+              <a href="/Contact">Contact Us</a>
             </li>
           </ul>
         </div>

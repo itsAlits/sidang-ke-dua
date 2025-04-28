@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Card2 from "../Components/Card2";
 import { calculateSawScores } from "../utils/SAW";
+import { calculateSawScore } from "../utils/Jurnal";
 import { toast } from "react-toastify";
 import Navbar from "../Components/Navbar";
 
@@ -84,7 +85,8 @@ export default function Home() {
         },
       }));
 
-      const rankedDestinations = calculateSawScores(formattedData, location);
+      // const rankedDestinations = calculateSawScores(formattedData, location);
+      const rankedDestinations = calculateSawScore(formattedData, location);
       if (rankedDestinations.length === 0) {
         toast.info("Tidak ada destinasi yang sesuai dengan kriteria", {
           position: "top-right",
@@ -192,7 +194,7 @@ export default function Home() {
               <form onSubmit={handleSearch} className="w-full">
                 <div className="w-full mt-4 flex flex-col md:flex-row gap-4 px-4">
                   <div className="w-full">
-                    <label className="select w-full">
+                    <label className="select w-full rounded-lg focus-within:outline-primary">
                       <span className="label">Kategori</span>
                       <select
                         value={category}
@@ -212,7 +214,7 @@ export default function Home() {
                     </label>
                   </div>
                   <div className="w-full">
-                    <label className="select w-full">
+                    <label className="select w-full rounded-lg focus-within:outline-primary">
                       <span className="label">Lokasi Anda</span>
                       <select
                         value={location}
@@ -233,7 +235,7 @@ export default function Home() {
                 <div className="w-full mt-4 px-4">
                   <button
                     type="submit"
-                    className="btn btn-primary text-white w-full"
+                    className="btn rounded-lg btn-primary text-white w-full"
                     disabled={loading}
                   >
                     {loading ? "Mencari..." : "Cari Rekomendasi"}
@@ -259,7 +261,7 @@ export default function Home() {
                   </p>
                 )}
               </div>
-              <div className="flex gap-3">
+              <div className="md:flex hidden gap-3 ">
                 {totalResults > 0 && (
                   <button onClick={toggleSorting} className="btn btn-active/70">
                     {isSorted

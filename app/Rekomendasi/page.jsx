@@ -15,6 +15,15 @@ export default function Home() {
   const [isSearchView, setIsSearchView] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
   const [isSorted, setIsSorted] = useState(false);
+  // State for custom weights
+  const [useCustomWeights, setUseCustomWeights] = useState(false);
+  const [weights, setWeights] = useState({
+    distance: 0.4,
+    cost: 0.2,
+    rating: 0.3,
+    hours: 0.1,
+  });
+  const [weightSum, setWeightSum] = useState(1.0);
 
   const fetchData = async () => {
     setLoading(true);
@@ -85,8 +94,13 @@ export default function Home() {
         },
       }));
 
-      // const rankedDestinations = calculateSawScores(formattedData, location);
-      const rankedDestinations = calculateSawScore(formattedData, location);
+      // Pass custom weights if enabled, otherwise pass null
+      // const rankedDestinations = calculateSawScores(formattedData, location, useCustomWeights ? weights : null);
+      const rankedDestinations = calculateSawScore(
+        formattedData,
+        location,
+        useCustomWeights ? weights : null
+      );
       if (rankedDestinations.length === 0) {
         toast.info("Tidak ada destinasi yang sesuai dengan kriteria", {
           position: "top-right",
@@ -131,12 +145,36 @@ export default function Home() {
     fetchData();
   };
 
+  const handleWeightChange = (criterion, value) => {
+    // Convert the string value to a float
+    const newValue = parseFloat(value);
+
+    // Update the weight for the specific criterion
+    const newWeights = { ...weights, [criterion]: newValue };
+
+    // Calculate the sum of all weights
+    const sum = Object.values(newWeights).reduce((acc, val) => acc + val, 0);
+
+    // Update state
+    setWeights(newWeights);
+    setWeightSum(sum);
+  };
+
   const resetSearch = () => {
     setCategory("");
     setLocation("");
     setDestinations([]);
     setIsSearchView(true);
     setIsSorted(false);
+    // Reset weights to default if needed
+    if (useCustomWeights) {
+      setWeights({
+        distance: 0.4,
+        cost: 0.2,
+        rating: 0.3,
+        hours: 0.1,
+      });
+    }
   };
 
   const toggleSorting = () => {
@@ -232,14 +270,128 @@ export default function Home() {
                     </label>
                   </div>
                 </div>
+
+                {/* Option to use custom weights */}
+                <div className="w-full mt-4 px-4">
+                  <div className="form-control">
+                    <label className="label cursor-pointer justify-start gap-2">
+                      <input
+                        type="checkbox"
+                        checked={useCustomWeights}
+                        onChange={() => setUseCustomWeights(!useCustomWeights)}
+                        className="checkbox checkbox-primary"
+                      />
+                      <span className="label-text">Gunakan Bobot Kustom</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Custom Weight Inputs */}
+                {useCustomWeights && (
+                  <div className="w-full mt-2 px-4 rounded-lg p-4">
+                    <h3 className="font-medium mb-2">
+                      Bobot Kriteria (Total: {weightSum.toFixed(1)})
+                    </h3>
+                    {weightSum !== 1.0 && (
+                      <p className="text-warning mb-2 text-sm">
+                        Catatan: Total bobot harus 1.0. Silakan sesuaikan.
+                      </p>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">Jarak</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={weights.distance}
+                            className="input input-bordered w-full"
+                            onChange={(e) =>
+                              handleWeightChange("distance", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">Biaya Masuk</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={weights.cost}
+                            className="input input-bordered w-full"
+                            onChange={(e) =>
+                              handleWeightChange("cost", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">Rating</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={weights.rating}
+                            className="input input-bordered w-full"
+                            onChange={(e) =>
+                              handleWeightChange("rating", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">Jam Operasional</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={weights.hours}
+                            className="input input-bordered w-full"
+                            onChange={(e) =>
+                              handleWeightChange("hours", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="w-full mt-4 px-4">
                   <button
                     type="submit"
                     className="btn rounded-lg btn-primary text-white w-full"
-                    disabled={loading}
+                    disabled={
+                      loading || (useCustomWeights && weightSum !== 1.0)
+                    }
                   >
                     {loading ? "Mencari..." : "Cari Rekomendasi"}
                   </button>
+                  {useCustomWeights && weightSum !== 1.0 && (
+                    <p className="text-error text-sm mt-2 text-center">
+                      Total bobot harus 1.0 untuk melanjutkan
+                    </p>
+                  )}
                 </div>
               </form>
             </div>

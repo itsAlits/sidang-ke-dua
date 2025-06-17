@@ -1,5 +1,5 @@
 // sawCalculator.js
-export const calculateSawScores = (destinations, userLocation) => {
+export const calculateSawScores = (destinations, userLocation, userWeights = null) => {
   console.log("Initial Destinations:", destinations);
   console.log("User Location:", userLocation);
 
@@ -7,8 +7,8 @@ export const calculateSawScores = (destinations, userLocation) => {
     return [];
   }
 
-  // Define weights for each criterion (sum should be 1)
-  const weights = {
+  // Use user provided weights or fallback to default weights
+  const weights = userWeights || {
     distance: 0.4, // Highest weight for distance from user location
     cost: 0.2, // Weight for entrance cost
     rating: 0.3, // Weight for rating
